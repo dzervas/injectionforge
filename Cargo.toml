@@ -6,13 +6,11 @@ edition = "2021"
 [lib]
 crate-type = ["cdylib"]
 
+[[bin]]
+name = "standalone"
+
 [dependencies]
 frida = { version = "0.4.0", features = ["auto-download"] }
 frida-sys = { version = "0.4.0", features = ["auto-download", "frida-build"] }
 lazy_static = "1.4.0"
-
-# [target.'cfg(unix)'.dependencies]
 ctor = "0.2.0"
-
-# [target.'cfg(windows)'.dependencies]
-# winapi = "0.3.9"
