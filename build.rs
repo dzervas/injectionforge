@@ -1,16 +1,62 @@
 use std::env;
 
 fn main() {
-	// Set the environment variable
-	env::set_var("MY_STRING", "Hello, world!");
-
 	if let Ok(code_file) = env::var("FRIDA_CODE_FILE") {
 		env::set_var("FRIDA_CODE", &std::fs::read_to_string(&code_file).unwrap());
 		println!("cargo:warning=Using code from file: {}", &code_file);
 	} else if env::var("FRIDA_CODE").is_ok() {
 		println!("cargo:warning=Using code from environment variable: FRIDA_CODE");
 	} else {
-		println!("cargo:error=Please set FRIDA_CODE or FRIDA_CODE_FILE environment variable");
+		println!("Please set FRIDA_CODE or FRIDA_CODE_FILE environment variable");
 		std::process::exit(1);
+	}
+
+	if let Ok(lib_path) = env::var("LIB_PROXY") {
+		// let mut exports = Vec::new();
+		// let mut dllsystem: &str;
+
+		// let mut pragma: Vec<String> = Vec::new();
+
+		use goblin::Object::{self, Elf, PE, Mach, Archive, Unknown};
+		// use goblin::mach::{MultiArch, MachO};
+
+		// #[cfg(windows)]
+		// use pelite::{FileMap, PeFile, Wrap};
+
+		// #[cfg(windows)]
+		// match PeFile::from_bytes(&file_map) {
+		// 	Ok(Wrap::T32(file)) => {
+		// 		exports = dump_export32(file);
+		// 		dllsystem = "x86";
+		// 	}
+		// 	Ok(Wrap::T64(file)) => {
+		// 		exports = dump_export64(file);
+		// 		dllsystem = "amd64";
+		// 	}
+		// 	Err(err) => {
+		// 		println!("Error: {}", err);
+		// 		std::process::exit(1);
+		// 	}
+		// }
+
+		let path = std::path::Path::new(&lib_path);
+		let lib_name = path.file_name().unwrap().to_str().unwrap();
+
+		let lib_bytes = std::fs::read(path).expect(format!("Failed to open given library file {}", &lib_name).as_str());
+		let object = Object::parse(&lib_bytes).expect(format!("Failed to parse given libary file {}", &lib_name).as_str());
+
+		let exports: Vec<&str> = match object {
+			// Elf(o) => { o.dynsyms.iter().map(|e| e.st_name.clone()).collect() },
+			PE(o) => { o.exports.iter().map(|e| e.name.unwrap().clone()).collect() },
+			Mach(_o) => { println!("Mach binaries are not supported yet"); std::process::exit(1); },
+			Archive(_o) => { println!("Archive files are not supported"); std::process::exit(1); },
+			_ => { println!("Unknown file format"); std::process::exit(1); },
+		};
+
+		for e in exports.iter() {
+			println!("cargo:warning=Exported function: {}", e);
+			println!("cargo:rustc-link-lib=dylib=orig.{}", lib_name);
+			println!("cargo:rustc-link-arg=/EXPORT:{}=orig.{}.{}", e, lib_name, e);
+		}
 	}
 }

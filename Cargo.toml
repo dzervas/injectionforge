@@ -8,9 +8,17 @@ crate-type = ["cdylib"]
 
 [[bin]]
 name = "standalone"
+path = "src/main.rs"
 
 [dependencies]
 frida = { version = "0.4.0", features = ["auto-download"] }
 frida-sys = { version = "0.4.0", features = ["auto-download", "frida-build"] }
 lazy_static = "1.4.0"
 ctor = "0.2.0"
+
+# [target.'cfg(unix)'.build-dependencies]
+
+# [target.'cfg(windows)'.build-dependencies]
+# pelite = "0.10.0"
+[build-dependencies]
+goblin = "0.6.1"

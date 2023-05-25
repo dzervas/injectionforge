@@ -42,7 +42,7 @@ pub fn inject(pid: u32) {
 
 #[no_mangle]
 pub fn inject_self() {
-	println!("[*] Attaching to self self");
+	println!("[*] Attaching to self (pid 0)");
 	inject(0);
 }
 
