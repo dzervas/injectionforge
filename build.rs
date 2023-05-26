@@ -1,6 +1,10 @@
 use std::env;
 
 fn main() {
+	println!("cargo:rerun-if-env-changed=FRIDA_CODE");
+	println!("cargo:rerun-if-env-changed=FRIDA_CODE_FILE");
+	println!("cargo:rerun-if-env-changed=LIB_PROXY");
+
 	if let Ok(code_file) = env::var("FRIDA_CODE_FILE") {
 		env::set_var("FRIDA_CODE", &std::fs::read_to_string(&code_file).unwrap());
 		println!("cargo:warning=Using code from file: {}", &code_file);
