@@ -16,9 +16,9 @@ checksum = "3f1e31e207a6b8fb791a38ea3105e6cb541f55e4d029902d3039a4ad07cc4105"
 
 [[package]]
 name = "bindgen"
-version = "0.61.0"
+version = "0.63.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a022e58a142a46fea340d68012b9201c094e93ec3d033a944a24f8fd4a4f09a"
+checksum = "36d860121800b2a9a94f9b5604b332d5cffb234ce17609ea479d723dbc9d3885"
 dependencies = [
  "bitflags",
  "cexpr",
@@ -202,8 +202,7 @@ dependencies = [
 [[package]]
 name = "frida"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9170f50c3920044c3ca4a25bc93ed38997389a8356a2cff339897a2203ba7830"
+source = "git+https://github.com/dzervas/frida-rust#1367b5d58bf50738bbeb49272b3eb99b98bbf891"
 dependencies = [
  "frida-sys",
  "thiserror",
@@ -212,8 +211,7 @@ dependencies = [
 [[package]]
 name = "frida-build"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2b1525c98a66f38f333d17e56c24562425263a9e07a53e5f59d0857bc360257"
+source = "git+https://github.com/dzervas/frida-rust#1367b5d58bf50738bbeb49272b3eb99b98bbf891"
 dependencies = [
  "reqwest",
  "tar",
@@ -226,7 +224,6 @@ version = "0.1.0"
 dependencies = [
  "ctor",
  "frida",
- "frida-sys",
  "goblin",
  "lazy_static",
 ]
@@ -234,8 +231,7 @@ dependencies = [
 [[package]]
 name = "frida-sys"
 version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bf32fe88d48f055dd9e27fa57c22cb5a1473e83982e7e27f3485bb3f9a5cf85"
+source = "git+https://github.com/dzervas/frida-rust#1367b5d58bf50738bbeb49272b3eb99b98bbf891"
 dependencies = [
  "bindgen",
  "frida-build",

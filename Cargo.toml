@@ -11,8 +11,10 @@ name = "standalone"
 path = "src/main.rs"
 
 [dependencies]
-frida = { version = "0.4.0", features = ["auto-download"] }
-frida-sys = { version = "0.4.0", features = ["auto-download", "frida-build"] }
+# frida = { version = "0.4.0", features = ["auto-download"] }
+# frida-sys = { version = "0.4.0", features = ["auto-download", "frida-build"] }
+frida = { git = "https://github.com/dzervas/frida-rust", features = ["auto-download"] }
+# frida-sys = { git = "https://github.com/frida/frida-rust", features = ["auto-download"] }
 lazy_static = "1.4.0"
 ctor = "0.2.0"
 
