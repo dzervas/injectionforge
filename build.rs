@@ -16,32 +16,8 @@ fn main() {
 	}
 
 	if let Ok(lib_path) = env::var("LIB_PROXY") {
-		// let mut exports = Vec::new();
-		// let mut dllsystem: &str;
-
-		// let mut pragma: Vec<String> = Vec::new();
-
 		use goblin::Object::{self, Elf, PE, Mach, Archive, Unknown};
 		// use goblin::mach::{MultiArch, MachO};
-
-		// #[cfg(windows)]
-		// use pelite::{FileMap, PeFile, Wrap};
-
-		// #[cfg(windows)]
-		// match PeFile::from_bytes(&file_map) {
-		// 	Ok(Wrap::T32(file)) => {
-		// 		exports = dump_export32(file);
-		// 		dllsystem = "x86";
-		// 	}
-		// 	Ok(Wrap::T64(file)) => {
-		// 		exports = dump_export64(file);
-		// 		dllsystem = "amd64";
-		// 	}
-		// 	Err(err) => {
-		// 		println!("Error: {}", err);
-		// 		std::process::exit(1);
-		// 	}
-		// }
 
 		let path = std::path::Path::new(&lib_path);
 		let lib_name = path.file_name().unwrap().to_str().unwrap();
@@ -50,17 +26,35 @@ fn main() {
 		let object = Object::parse(&lib_bytes).expect(format!("Failed to parse given libary file {}", &lib_name).as_str());
 
 		let exports: Vec<&str> = match object {
-			// Elf(o) => { o.dynsyms.iter().map(|e| e.st_name.clone()).collect() },
-			PE(o) => { o.exports.iter().map(|e| e.name.unwrap().clone()).collect() },
-			Mach(_o) => { println!("Mach binaries are not supported yet"); std::process::exit(1); },
-			Archive(_o) => { println!("Archive files are not supported"); std::process::exit(1); },
-			_ => { println!("Unknown file format"); std::process::exit(1); },
+			Elf(o) =>
+				o.dynsyms
+					.iter()
+					.filter(|e| !e.is_import())
+					.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
+					.collect(),
+			PE(o) =>
+				o.exports
+					.iter()
+					.map(|e| e.name.unwrap().clone())
+					.collect(),
+			Mach(_o) => {
+				println!("Mach binaries are not supported yet");
+				std::process::exit(1);
+			},
+			Archive(_o) => {
+				println!("Archive files are not supported");
+				std::process::exit(1);
+			},
+			Unknown(_o) => {
+				println!("The file you provided is of unknown format");
+				std::process::exit(1);
+			},
 		};
 
 		for e in exports.iter() {
 			println!("cargo:warning=Exported function: {}", e);
-			println!("cargo:rustc-link-lib=dylib=orig.{}", lib_name);
-			println!("cargo:rustc-link-arg=/EXPORT:{}=orig.{}.{}", e, lib_name, e);
+			// println!("cargo:rustc-link-lib=dylib=orig.{}", lib_name);
+			println!("cargo:rustc-link-arg=/export:{}=orig.{}.{}", e, lib_name, e);
 		}
 	}
 }
