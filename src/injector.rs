@@ -1,4 +1,5 @@
 use frida::{DeviceManager, Frida, ScriptHandler, ScriptOption, ScriptRuntime};
+use serde::Deserialize;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -8,7 +9,7 @@ lazy_static! {
 #[no_mangle]
 pub fn attach(pid: u32) {
 	let frida_code = env!("FRIDA_CODE").to_string();
-	println!("[*] Injecting into PID: {}", pid);
+	println!("[+] Injecting into PID: {}", pid);
 
 	std::thread::spawn(move || {
 		let device_manager = DeviceManager::obtain(&FRIDA);
@@ -23,7 +24,7 @@ pub fn attach(pid: u32) {
 				println!("[*] Attached");
 
 				let mut script_option = ScriptOption::new()
-					.set_name("frida-deepfreeze-rs")
+					// .set_name("frida-deepfreeze-rs")
 					.set_runtime(ScriptRuntime::QJS);
 				println!("[*] Script {}", frida_code);
 				let script = session
@@ -36,7 +37,7 @@ pub fn attach(pid: u32) {
 				println!("[*] Script loaded");
 			}
 		} else {
-			println!("[!] No device found!");
+			eprintln!("[!] No device found!");
 		};
 	});
 }
@@ -47,10 +48,52 @@ pub fn attach_self() {
 	attach(0);
 }
 
+#[derive(Debug, Deserialize)]
+struct LogEntry {
+	#[serde(rename = "type")]
+	log_type: LogType,
+	level: LogLevel,
+	payload: String,
+}
+
+#[derive(Debug, Deserialize)]
+enum LogType {
+	#[serde(rename = "log")]
+	Log,
+}
+
+#[derive(Debug, Deserialize)]
+enum LogLevel {
+	#[serde(rename = "debug")]
+	Debug,
+	#[serde(rename = "info")]
+	Info,
+	#[serde(rename = "warning")]
+	Warning,
+	#[serde(rename = "error")]
+	Error,
+}
+
 struct Handler;
 
 impl ScriptHandler for Handler {
 	fn on_message(&mut self, message: &str) {
-		eprintln!("[<] {message}");
+		if let Ok(log_entry) = serde_json::from_str::<LogEntry>(message) {
+			match log_entry.log_type {
+				LogType::Log => {
+					match log_entry.level {
+						LogLevel::Debug => eprint!("[-] "),
+						LogLevel::Info => eprint!("[i] "),
+						LogLevel::Warning => eprint!("[!] "),
+						LogLevel::Error => eprint!("[X] "),
+					}
+				}
+			}
+
+			eprintln!("{}", log_entry.payload);
+			return;
+		}
+
+		eprintln!("{message}");
 	}
 }

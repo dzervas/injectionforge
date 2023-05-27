@@ -14,10 +14,14 @@ path = "src/main.rs"
 # frida = { version = "0.4.0", features = ["auto-download"] }
 frida = { git = "https://github.com/dzervas/frida-rust", features = ["auto-download"] }
 lazy_static = "1.4.0"
-ctor = "0.2.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.9", features = ["winnt", "libloaderapi"] }
+
+[target.'cfg(unix)'.dependencies]
+ctor = "0.2.0"
 
 [build-dependencies]
 goblin = "0.6.1"
