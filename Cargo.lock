@@ -226,6 +226,7 @@ dependencies = [
  "frida",
  "goblin",
  "lazy_static",
+ "winapi",
 ]
 
 [[package]]

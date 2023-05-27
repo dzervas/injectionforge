@@ -1,5 +1,5 @@
 pub mod injector;
-pub use injector::inject;
+pub use injector::attach;
 
 fn main() {
 	let args: Vec<String> = std::env::args().collect();
@@ -10,5 +10,5 @@ fn main() {
 	}
 
 	let pid: u32 = args[1].parse().unwrap();
-	inject(pid);
+	attach(pid);
 }

@@ -5,51 +5,55 @@ lazy_static! {
 	static ref FRIDA: Frida = unsafe { Frida::obtain() };
 }
 
-const FRIDA_CODE: &str = env!("FRIDA_CODE", "Please set FRIDA_CODE environment variable");
-
 #[no_mangle]
-pub fn inject(pid: u32) {
-	let device_manager = DeviceManager::obtain(&FRIDA);
+pub fn attach(pid: u32) {
+	let frida_code = env!("FRIDA_CODE").to_string();
+	println!("[*] Injecting into PID: {}", pid);
 
-	if let Some(device) = device_manager.enumerate_all_devices().first() {
-		println!("[*] First device: {}", device.get_name());
+	std::thread::spawn(move || {
+		let device_manager = DeviceManager::obtain(&FRIDA);
+		println!("[*] Device Manager obtained");
 
-		let session = device.attach(pid).unwrap();
+		if let Some(device) = device_manager.enumerate_all_devices().first() {
+			println!("[*] First device: {}", device.get_name());
 
-		if !session.is_detached() {
-			println!("[*] Attached");
+			let session = device.attach(pid).unwrap();
 
-			let mut script_option = ScriptOption::new()
-				// .set_name("frida-deepfreeze-rs")
-				.set_runtime(ScriptRuntime::QJS);
-			let script = session
-				.create_script(FRIDA_CODE, &mut script_option)
-				.unwrap();
+			if !session.is_detached() {
+				println!("[*] Attached");
 
-			script.handle_message(&mut Handler).unwrap();
+				let mut script_option = ScriptOption::new()
+					.set_name("frida-deepfreeze-rs")
+					.set_runtime(ScriptRuntime::QJS);
+				println!("[*] Script {}", frida_code);
+				let script = session
+					.create_script(&frida_code, &mut script_option)
+					.unwrap();
 
-			script.load().unwrap();
-			println!("[*] Script loaded");
+				script.handle_message(&mut Handler).unwrap();
 
-			script.unload().unwrap();
-			println!("[*] Script unloaded");
-
-			session.detach().unwrap();
-			println!("[*] Session detached");
-		}
-	};
+				script.load().unwrap();
+				println!("[*] Script loaded");
+			}
+		} else {
+			println!("[!] No device found!");
+		};
+	});
 }
 
 #[no_mangle]
-pub fn inject_self() {
-	println!("[*] Attaching to self (pid 0)");
-	inject(0);
+pub fn attach_self() {
+	println!("[*] Attaching to self");
+	// #[cfg(windows)]
+	// attach(std::process::id());
+	// #[cfg(unix)]
+	attach(0);
 }
 
 struct Handler;
 
 impl ScriptHandler for Handler {
 	fn on_message(&mut self, message: &str) {
-		println!("[<] {message}");
+		eprintln!("[<] {message}");
 	}
 }

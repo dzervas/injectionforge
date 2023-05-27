@@ -1,11 +1,38 @@
 pub mod injector;
 
-pub use injector::{inject, inject_self};
+pub use injector::{attach, attach_self};
 
+#[cfg(unix)]
 use ctor::ctor;
 
+#[cfg(unix)]
 #[ctor]
 fn _start() {
-	println!("[+] frida-deepfreeze-rs SO injected");
-	inject_self();
+	println!("[+] frida-deepfreeze-rs library injected");
+	attach_self();
+}
+
+// For some reason ctor doesn't work on Windows - it hangs the process
+// during DeviceManager::obtain. DllMain works fine though.
+#[cfg(windows)]
+use std::ffi::c_void;
+
+#[cfg(windows)]
+use winapi::um::winnt::DLL_PROCESS_ATTACH;
+
+#[cfg(windows)]
+#[no_mangle]
+#[allow(non_snake_case, unused_variables)]
+extern "system" fn DllMain(dll_module: *mut c_void, call_reason: u32, _: *mut ()) -> bool {
+	match call_reason {
+		DLL_PROCESS_ATTACH => {
+			println!("[+] frida-deepfreeze-rs DLL injected");
+			attach_self();
+
+		}
+		// Maybe we should detach? Is it useful?
+		_ => ()
+	}
+
+	true
 }
