@@ -44,9 +44,6 @@ pub fn attach(pid: u32) {
 #[no_mangle]
 pub fn attach_self() {
 	println!("[*] Attaching to self");
-	// #[cfg(windows)]
-	// attach(std::process::id());
-	// #[cfg(unix)]
 	attach(0);
 }
 
