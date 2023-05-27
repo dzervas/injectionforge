@@ -19,6 +19,8 @@ use std::ffi::c_void;
 
 #[cfg(windows)]
 use winapi::um::winnt::DLL_PROCESS_ATTACH;
+#[cfg(windows)]
+use winapi::um::libloaderapi::LoadLibraryA;
 
 #[cfg(windows)]
 #[no_mangle]
@@ -27,8 +29,9 @@ extern "system" fn DllMain(dll_module: *mut c_void, call_reason: u32, _: *mut ()
 	match call_reason {
 		DLL_PROCESS_ATTACH => {
 			println!("[+] frida-deepfreeze-rs DLL injected");
+			unsafe { LoadLibraryA(env!("LIB_NAME").as_ptr() as *const i8); }
+			println!("[+] Original DLL {} loaded", env!("LIB_NAME"));
 			attach_self();
-
 		}
 		// Maybe we should detach? Is it useful?
 		_ => ()

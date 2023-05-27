@@ -17,7 +17,7 @@ lazy_static = "1.4.0"
 ctor = "0.2.0"
 
 [target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3.9", features = ["winnt"] }
+winapi = { version = "0.3.9", features = ["winnt", "libloaderapi"] }
 
 [build-dependencies]
 goblin = "0.6.1"

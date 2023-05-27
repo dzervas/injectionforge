@@ -33,5 +33,6 @@ fn main() {
 			// println!("cargo:rustc-link-lib=dylib={}-orig", lib_name);
 		}
 		println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
+		println!("cargo:rustc-env=LIB_NAME={}-orig.dll", lib_name);
 	}
 }
