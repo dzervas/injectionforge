@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 # frida = { version = "0.4.0", features = ["auto-download"] }
-frida = { git = "https://github.com/dzervas/frida-rust", features = ["auto-download"] }
+frida = { git = "https://github.com/frida/frida-rust", features = ["auto-download"] }
 lazy_static = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
