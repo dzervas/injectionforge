@@ -1,4 +1,7 @@
 pub mod injector;
+#[cfg(feature = "frida")]
+pub mod frida_handler;
+
 pub use injector::attach;
 
 fn main() {
@@ -12,3 +15,6 @@ fn main() {
 	let pid: u32 = args[1].parse().unwrap();
 	attach(pid);
 }
+
+// #[cfg(test)]
+// mod integration_tests;

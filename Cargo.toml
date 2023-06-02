@@ -10,18 +10,32 @@ crate-type = ["cdylib"]
 name = "standalone"
 path = "src/main.rs"
 
+[features]
+default = ["frida"]
+dll_proxy = []
+managed_lib = ["dep:windows-sys"]
+# unmanaged_lib = [],
+frida = ["dep:frida", "dep:lazy_static", "dep:serde", "dep:serde_json"]
+
 [dependencies]
 # frida = { version = "0.4.0", features = ["auto-download"] }
-frida = { git = "https://github.com/frida/frida-rust", features = ["auto-download"] }
-lazy_static = "1.4.0"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+frida = { git = "https://github.com/frida/frida-rust", features = ["auto-download"], optional = true }
+lazy_static = { version = "1.4.0", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3.9", features = ["winnt", "libloaderapi"] }
+windows-sys = { version = "0.48.0", features = ["Win32_System_ClrHosting"], optional = true }
 
 [target.'cfg(unix)'.dependencies]
 ctor = "0.2.0"
 
 [build-dependencies]
 goblin = "0.6.1"
+# Can't find a way to have a test-only dependency
+cc = "1.0.67"
+
+[dev-dependencies]
+pretty_assertions = "1.1.0"
+mylib = { path = "tests/mylib" }
