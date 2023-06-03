@@ -1,0 +1,2 @@
+[env]
+FRIDA_CODE = "console.log('Hello World from frida-deepfreeze-rs!')"
