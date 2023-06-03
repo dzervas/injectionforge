@@ -35,15 +35,4 @@ fn main() {
 		println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
 		println!("cargo:rustc-env=LIB_NAME={}-orig.dll", lib_name);
 	}
-
-	// if env::var("PROFILE").unwrap() == "test" {
-		// cc::Build::new()
-		// 	.shared_flag(true)
-		// 	.static_flag(false)
-		// 	.cargo_metadata(false)
-		// 	.file("tests/mylib.c")
-		// 	.compile("mylib");
-		// println!("cargo:rustc-link-search=native={}/tests", env::var("OUT_DIR").unwrap());
-		// println!("cargo:rustc-link-lib=dylib=mylib");
-	// }
 }

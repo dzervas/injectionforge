@@ -16,12 +16,12 @@ fn _start() {
 
 // For some reason ctor doesn't work on Windows - it hangs the process
 // during DeviceManager::obtain. DllMain works fine though.
-#[cfg(windows)]
+#[cfg(all(windows, not(test)))]
 use std::ffi::c_void;
-#[cfg(windows)]
+#[cfg(all(windows, not(test)))]
 use winapi::um::winnt::DLL_PROCESS_ATTACH;
 
-#[cfg(all(windows, feature = "dll_proxy"))]
+#[cfg(all(windows, feature = "dll_proxy", not(test)))]
 use winapi::um::libloaderapi::LoadLibraryA;
 
 #[cfg(all(windows, not(test)))]
@@ -45,4 +45,59 @@ extern "system" fn DllMain(dll_module: *mut c_void, call_reason: u32, _: *mut ()
 	}
 
 	true
+}
+
+#[cfg(test)]
+mod tests {
+	use pretty_assertions::assert_eq;
+	use std::process::Command;
+	use std::fs;
+
+	#[test]
+	#[cfg(feature = "frida")]
+	fn test_frida_on_load() {
+		let lib_status = Command::new("cargo")
+			.arg("build")
+			.arg("--lib")
+			.arg("--target-dir")
+			.arg("target/test_frida_on_load")
+			.env("FRIDA_CODE", r#"
+				const foo = Module.getExportByName(null, "mylib_foo");
+				Interceptor.replace(foo, new NativeCallback(function () {
+					console.log("replaced foo() called");
+					return 40;
+				}, "uint8", []));
+			"#)
+			.status()
+			.expect("Failed to build dynamic library");
+
+		assert!(lib_status.success(), "Failed to build dynamic library");
+
+		let bin_status = Command::new("cargo")
+			.arg("run")
+			.arg("--manifest-path")
+			.arg("tests/mybin/Cargo.toml")
+			.arg("--target-dir")
+			.arg("target/test_frida_on_load")
+			.env("RUSTFLAGS", "-C link-arg=-Wl,--no-as-needed -C link-arg=-lfrida_deepfreeze_rs")
+			.status()
+			.expect("Failed to build mybin");
+
+		assert_eq!(bin_status.code().unwrap(), 40, "Failed to replace foo()");
+		// assert_eq!(40, unsafe { mylib_foo() });
+
+// 		escargot::CargoBuild::new()
+// 			.current_release()
+// 			.current_target()
+// 			.env("FRIDA_CODE", r#"
+// 				const foo = Module.getExportByName(null, "mylib_foo");
+// 				Interceptor.replace(foo, new NativeCallback(function () {
+// 					console.log("replaced foo() called");
+// 					return 20;
+// 				}, "uint8", []));
+// 			"#)
+// 			.manifest_path("../../Cargo.toml")
+// 			.run()
+// 			.unwrap();
+	}
 }

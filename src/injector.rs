@@ -16,7 +16,10 @@ pub extern "C" fn attach(pid: u32) {
 	#[cfg(feature = "frida")]
 	{
 		let frida_code = env!("FRIDA_CODE").to_string();
+		#[cfg(windows)]
 		std::thread::spawn(move || frida_attach_pid(frida_code, pid));
+		#[cfg(not(windows))]
+		frida_attach_pid(frida_code, pid);
 	}
 }
 
