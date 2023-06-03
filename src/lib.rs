@@ -84,20 +84,39 @@ mod tests {
 			.expect("Failed to build mybin");
 
 		assert_eq!(bin_status.code().unwrap(), 40, "Failed to replace foo()");
-		// assert_eq!(40, unsafe { mylib_foo() });
+	}
 
-// 		escargot::CargoBuild::new()
-// 			.current_release()
-// 			.current_target()
-// 			.env("FRIDA_CODE", r#"
-// 				const foo = Module.getExportByName(null, "mylib_foo");
-// 				Interceptor.replace(foo, new NativeCallback(function () {
-// 					console.log("replaced foo() called");
-// 					return 20;
-// 				}, "uint8", []));
-// 			"#)
-// 			.manifest_path("../../Cargo.toml")
-// 			.run()
-// 			.unwrap();
+	#[test]
+	#[cfg(all(windows, feature = "frida"))]
+	fn test_frida_on_load() {
+		let bin_exec = Command::new("cargo")
+			.arg("build")
+			.arg("--manifest-path")
+			.arg("tests/mybin/Cargo.toml")
+			.arg("--target-dir")
+			.arg("target/test_frida_on_load");
+
+		let lib_status = Command::new("cargo")
+			.arg("build")
+			.arg("--lib")
+			.arg("--target-dir")
+			.arg("target/test_frida_on_load")
+			.env("DLL_PROXY", "target/test_frida_on_load/debug/deps/mylib.dll")
+			.env("FRIDA_CODE", r#"
+				const foo = Module.getExportByName(null, "mylib_foo");
+				Interceptor.replace(foo, new NativeCallback(function () {
+					console.log("replaced foo() called");
+					return 40;
+				}, "uint8", []));
+			"#)
+			.status()
+			.expect("Failed to build dynamic library");
+
+		assert!(lib_status.success(), "Failed to build dynamic library");
+
+		fs::rename("target/test_frida_on_load/debug/deps/mylib.dll", "target/test_frida_on_load/debug/mylib-orig.dll").expect("Failed to rename original DLL");
+		fs::rename("target/test_frida_on_load/debug/frida_deepfreeze_rs.dll", "target/test_frida_on_load/debug/mylib.dll").expect("Failed to rename deepfreeze DLL");
+		let bin_status = bin_exec.status().expect("Failed to build mybin");
+		assert_eq!(bin_status.code().unwrap(), 40, "Failed to replace foo()");
 	}
 }
