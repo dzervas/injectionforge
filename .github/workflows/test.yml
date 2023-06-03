@@ -13,12 +13,17 @@ env:
 
 jobs:
   build:
-
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --all-features
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose --all-features
