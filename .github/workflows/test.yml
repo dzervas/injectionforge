@@ -23,11 +23,23 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Set up cargo cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-
     - name: Build
       run: cargo build --verbose
     - name: Run tests - frida
       run: cargo test --verbose
 
     # - name: Run tests - frida
-    #   if: matrix.os == 'windows-latest'
+    #   if: runner.os == 'windows-latest'
     #   run: cargo test --verbose --no-default-features --features managed_lib

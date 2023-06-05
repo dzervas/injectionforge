@@ -32,10 +32,7 @@ ctor = "0.2.0"
 
 [build-dependencies]
 goblin = "0.6.1"
-# Can't find a way to have a test-only dependency
-cc = "1.0.67"
 
 [dev-dependencies]
 pretty_assertions = "1.1.0"
 mylib = { path = "tests/mylib" }
-# escargot = "0.5.7"
