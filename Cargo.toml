@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [features]
 default = ["frida"]
-dll_proxy = []
+# dll_proxy = []
 managed_lib = ["dep:windows-sys"]
 # unmanaged_lib = [],
 frida = ["dep:frida", "dep:lazy_static", "dep:serde", "dep:serde_json"]

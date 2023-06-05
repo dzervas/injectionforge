@@ -51,6 +51,7 @@ extern "system" fn DllMain(dll_module: *mut c_void, call_reason: u32, _: *mut ()
 mod tests {
 	use pretty_assertions::assert_eq;
 	use std::process::Command;
+	#[cfg(all(windows, feature = "frida"))]
 	use std::fs;
 
 	#[test]

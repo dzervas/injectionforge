@@ -28,9 +28,8 @@ fn main() {
 		};
 
 		for e in exports.iter() {
-			// println!("cargo:warning=Exported function: {} => {}-orig.{}", e, lib_name, e);
+			println!("cargo:warning=Exported function: {} => {}-orig.{}", e, lib_name, e);
 			println!("cargo:rustc-link-arg=/export:{}={}-orig.{}", e, lib_name, e);
-			// println!("cargo:rustc-link-lib=dylib={}-orig", lib_name);
 		}
 		println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
 		println!("cargo:rustc-env=LIB_NAME={}-orig.dll", lib_name);
