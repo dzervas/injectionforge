@@ -2,3 +2,4 @@ target
 __handlers__
 /examples/cs/*/obj
 /examples/cs/*/bin
+*.png~
