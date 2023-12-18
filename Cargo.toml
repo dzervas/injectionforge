@@ -28,7 +28,7 @@ winapi = { version = "0.3.9", features = ["winnt", "libloaderapi"] }
 windows-sys = { version = "0.52.0", features = ["Win32_System_ClrHosting"], optional = true }
 
 [target.'cfg(unix)'.dependencies]
-ctor = "0.2.5"
+ctor = "0.2.6"
 
 [build-dependencies]
 goblin = "0.7.1"
