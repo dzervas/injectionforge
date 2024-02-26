@@ -18,7 +18,7 @@ fn main() {
 			PE(o) =>
 				(o.exports
 					.iter()
-					.map(|e| e.name.unwrap().clone())
+					.map(|e| e.name.unwrap())
 					.collect(),
 				o.name.unwrap().replace(".dll", "")),
 			_ => {
