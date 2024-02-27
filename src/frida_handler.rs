@@ -1,5 +1,5 @@
 #![cfg(feature = "frida")]
-use frida::{DeviceManager, Frida, ScriptHandler, ScriptOption, ScriptRuntime};
+use frida::{DeviceManager, DeviceType, Frida, ScriptHandler, ScriptOption, ScriptRuntime};
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
@@ -7,13 +7,13 @@ lazy_static! {
 	pub static ref FRIDA: Frida = unsafe { Frida::obtain() };
 }
 
-pub fn attach_pid(frida_code: String, pid: u32) {
+pub fn attach_pid(frida_code: &str, pid: u32) {
 	println!("[+] Injecting into PID: {}", pid);
 
 	let device_manager = DeviceManager::obtain(&FRIDA);
 	println!("[*] Device Manager obtained");
 
-	if let Some(device) = device_manager.enumerate_all_devices().first() {
+	if let Ok(device) = device_manager.get_device_by_type(DeviceType::Local) {
 		println!("[*] First device: {}", device.get_name());
 
 		let session = device.attach(pid).unwrap();
@@ -25,7 +25,7 @@ pub fn attach_pid(frida_code: String, pid: u32) {
 				.set_runtime(ScriptRuntime::QJS);
 			println!("[*] Script {}", frida_code);
 			let script = session
-				.create_script(&frida_code, &mut script_option)
+				.create_script(frida_code, &mut script_option)
 				.unwrap();
 
 			script.handle_message(&mut Handler).unwrap();
@@ -110,7 +110,7 @@ mod tests {
 			}, "uint8", []));
 		"#;
 
-		attach_pid(frida_script.to_string(), 0);
+		attach_pid(frida_script, 0);
 		assert_eq!(20, unsafe { mylib_foo() });
 	}
 }

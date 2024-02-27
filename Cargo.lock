@@ -72,7 +72,7 @@ dependencies = [
  "regex",
  "rustc-hash",
  "shlex",
- "syn",
+ "syn 2.0.51",
  "which",
 ]
 
@@ -149,13 +149,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06ea2b9bc92be3c2baa9334a323ebca2d6f074ff852cd1d7b11064035cd3868f"
 
 [[package]]
+name = "csbindgen"
+version = "1.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c848726dae35e119d20f0aae60950095dc00cc399d7c56620019c47ae1d7b385"
+dependencies = [
+ "regex",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "ctor"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ad291aa74992b9b7a7e88c38acbbf6ad7e107f1d90ee8775b7bc1fc3394f485c"
 dependencies = [
  "quote",
- "syn",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -268,6 +278,7 @@ dependencies = [
 name = "frida-deepfreeze-rs"
 version = "0.1.0"
 dependencies = [
+ "csbindgen",
  "ctor",
  "frida",
  "goblin",
@@ -691,7 +702,7 @@ checksum = "a948666b637a0f465e8564c73e89d4dde00d72d4d473cc972f390fc3dcee7d9c"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -759,7 +770,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a41cf62165e97c7f814d2221421dbb9afcbcdb0a88068e5ea206e19951c2cbb5"
 dependencies = [
  "proc-macro2",
- "syn",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -924,7 +935,7 @@ checksum = "7f81c2fde025af7e69b1d1420531c8a8811ca898919db177141a85313b1cb932"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -967,7 +978,7 @@ checksum = "7eb0b34b42edc17f6b7cac84a52a1c5f0e1bb2227e997ca9011ea3dd34e8610b"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -1016,6 +1027,17 @@ checksum = "05ffd9c0a93b7543e062e759284fcf5f5e3b098501104bfbdde4d404db792871"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "syn"
+version = "1.0.109"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "unicode-ident",
 ]
 
 [[package]]
@@ -1096,7 +1118,7 @@ checksum = "a953cb265bef375dae3de6663da4d3804eee9682ea80d8e2542529b73c531c81"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.51",
 ]
 
 [[package]]
@@ -1259,7 +1281,7 @@ dependencies = [
  "once_cell",
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.51",
  "wasm-bindgen-shared",
 ]
 
@@ -1293,7 +1315,7 @@ checksum = "642f325be6301eb8107a83d12a8ac6c1e1c54345a7ef1a9261962dfefda09e66"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn",
+ "syn 2.0.51",
  "wasm-bindgen-backend",
  "wasm-bindgen-shared",
 ]

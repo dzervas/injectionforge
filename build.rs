@@ -1,4 +1,6 @@
 use std::env;
+#[cfg(feature = "dotnet")]
+use csbindgen;
 
 fn main() {
 	println!("cargo:rerun-if-env-changed=FRIDA_CODE");
@@ -33,5 +35,16 @@ fn main() {
 		}
 		println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
 		println!("cargo:rustc-env=LIB_NAME={}-orig.dll", lib_name);
+	}
+
+	#[cfg(feature = "dotnet")]
+	{
+		let lib_path = concat!(env!("CARGO_MANIFEST_DIR"), "/src/lib.rs");
+		let csharp_file = concat!(env!("CARGO_MANIFEST_DIR"), "/dotnet/NativeMethods.g.cs");
+		csbindgen::Builder::default()
+			.input_extern_file(lib_path)
+			.csharp_dll_name("deepfreeze")
+			.generate_csharp_file(csharp_file)
+			.unwrap();
 	}
 }

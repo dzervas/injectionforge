@@ -42,4 +42,4 @@ jobs:
 
     # - name: Run tests - frida
     #   if: runner.os == 'windows-latest'
-    #   run: cargo test --verbose --no-default-features --features managed_lib
+    #   run: cargo test --verbose --no-default-features --features dotnet

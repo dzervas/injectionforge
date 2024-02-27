@@ -3,3 +3,8 @@ __handlers__
 /examples/cs/*/obj
 /examples/cs/*/bin
 *.png~
+*.exe
+*.dll
+/examples/cs/bin
+/examples/cs/obj
+/dotnet
