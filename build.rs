@@ -8,7 +8,7 @@ fn main() {
 
 	if let Ok(lib_path) = env::var("DLL_PROXY") {
 		println!("cargo:rerun-if-changed={}", &lib_path);
-		use goblin::Object::{self, PE};
+		use goblin::Object;
 
 		let path = std::path::Path::new(&lib_path);
 		let lib_filename = path.file_name().unwrap().to_str().unwrap();
@@ -17,22 +17,49 @@ fn main() {
 		let object = Object::parse(&lib_bytes).expect(format!("Failed to parse given libary file {}", &lib_filename).as_str());
 
 		let (exports, lib_name): (Vec<&str>, String) = match object {
-			PE(o) =>
+			#[cfg(target_os = "windows")]
+			Object::PE(o) => {
 				(o.exports
 					.iter()
 					.map(|e| e.name.unwrap())
 					.collect(),
-				o.name.unwrap().replace(".dll", "")),
+				o.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", ""))
+			}
+			#[cfg(target_os = "linux")]
+			Object::Elf(o) => {
+				(o.dynsyms
+					.iter()
+					.filter(|e| e.is_function() && !e.is_import())
+					.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
+					.collect(),
+				o.soname.expect("Couldn't read the name of the SO.").replace(".so", ""))
+			},
+			// #[cfg(target_os = "darwin")]
+			// Object::Mach(goblin::mach::Mach::Binary(o)) => {
+			// 	(o.dynsyms
+			// 		.iter()
+			// 		.filter(|e| e.is_function() && !e.is_import())
+			// 		.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
+			// 		.collect(),
+			// 	o.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", ""))
+			// },
 			_ => {
-				println!("Only DLL files are supported");
+				println!("Only PE (.dll) and ELF (.so) files are supported in their respective target platforms.");
 				std::process::exit(1);
 			},
 		};
 
+		#[cfg(target_os = "windows")]
 		for e in exports.iter() {
 			println!("cargo:warning=Exported function: {} => {}-orig.{}", e, lib_name, e);
 			println!("cargo:rustc-link-arg=/export:{}={}-orig.{}", e, lib_name, e);
 		}
+
+		#[cfg(not(target_os = "windows"))]
+		for e in exports.iter() {
+			println!("cargo:warning=Exported function: {}", e);
+		}
+
 		println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
 		println!("cargo:rustc-env=LIB_NAME={}-orig.dll", lib_name);
 	}

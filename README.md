@@ -27,6 +27,9 @@ variable or as a file using the `FRIDA_CODE_FILE` environment variable.
 
 ### Standalone executable
 
+The standalone executable is the easiest to use. You just run it with a PID and
+it will inject itself and run the frida script.
+
 ```bash
 git clone https://github.com/dzervas/frida-deepfreeze-rs
 FRIDA_CODE='console.log("Hello world from frida-deepfreeze-rs!")' cargo run --bin standalone -- 1234
@@ -35,6 +38,9 @@ FRIDA_CODE='console.log("Hello world from frida-deepfreeze-rs!")' cargo run --bi
 The binary is located at `target/debug/standalone` (`.exe` for windows).
 
 ### Shared library
+
+The shared library is a bit more complicated to use. You have to inject it to
+a process using a tool like `LD_PRELOAD` (linux) or `rundll32.exe` (windows).
 
 ```bash
 git clone https://github.com/dzervas/frida-deepfreeze-rs
@@ -46,14 +52,15 @@ LD_PRELOAD=target/debug/libfrida_deepfreeze_rs.so cat
 The resulting library is located at `target/debug/libfrida_deepfreeze_rs.so`
 (`.dll` for windows). You can inject it using your favorite injector.
 
-There are two exported functions:
+There are two exported functions that you can call from the library to inject:
 
 ```c
 void inject(uint32_t pid); // Run the frida script in the process with the given pid
 void inject_self(); // Run the frida script in the process that called the function
 ```
 
-By default, on load the library will call `inject_self()`.
+By default (so `DllMain` in windows and `.ctor` on unix), on load the library
+will call `inject_self()` so you can just inject it and it will run the script.
 
 ### DLL Proxying
 
