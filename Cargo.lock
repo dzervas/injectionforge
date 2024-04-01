@@ -255,9 +255,9 @@ dependencies = [
 
 [[package]]
 name = "frida"
-version = "0.4.4"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ada99865e45c123cc1138a77e4c3d3614d73f14b76272673120112206773d99"
+checksum = "5c79c6c9ab252de3110fea097a5f0432ef3eb3d5acb1d5ad4e1c07e6c95e4f90"
 dependencies = [
  "frida-sys",
  "thiserror",
