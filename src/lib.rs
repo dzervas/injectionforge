@@ -3,6 +3,8 @@ pub mod injector;
 pub mod frida_handler;
 // #[cfg(feature = "dotnet")]
 // pub mod cs;
+#[cfg(not(windows))]
+pub mod symbols;
 
 pub use injector::attach_self;
 

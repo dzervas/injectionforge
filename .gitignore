@@ -8,3 +8,4 @@ __handlers__
 /examples/cs/bin
 /examples/cs/obj
 /dotnet
+src/symbols.rs
