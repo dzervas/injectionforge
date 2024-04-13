@@ -1,6 +1,6 @@
 # frida-deepfreeze-rs
 
-<img align="right" height="300" src="frida-deepfreeze-rs.png" alt="frida-deepfreeze-rs logo" />
+<img align="right" height="300" src=".github/logo.png" alt="frida-deepfreeze-rs logo" />
 
 Have you ever written a frida script this good, that you wanted to make it permanent?
 Well, now you can!

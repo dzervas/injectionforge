@@ -1,4 +1,5 @@
 #![cfg(feature = "frida")]
+
 use frida::{DeviceManager, DeviceType, Frida, ScriptHandler, ScriptOption, ScriptRuntime};
 use lazy_static::lazy_static;
 use serde::Deserialize;
