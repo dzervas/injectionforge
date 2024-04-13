@@ -29,7 +29,7 @@ ctor = "0.2.7"
 
 [build-dependencies]
 goblin = "0.8.0"
+build-target = "0.4"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
-# mylib = { path = "tests/mylib" }

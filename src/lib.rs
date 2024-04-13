@@ -2,63 +2,24 @@ pub mod injector;
 #[cfg(feature = "frida")]
 pub mod frida_handler;
 
-#[cfg(symbols)]
-pub mod symbols;
-#[cfg(symbols)]
-pub use symbols::*;
-
 pub use injector::attach_self;
-
-#[cfg(all(unix, not(test)))]
-use ctor::ctor;
 
 // During testing we compile a debug binary without `test`.
 // Enabling `ctor` during testing would hook the test runner and break it.
 #[cfg(all(unix, not(test)))]
-#[ctor]
-fn _start() {
-	println!("[+] frida-deepfreeze-rs library injected");
-	attach_self();
-}
-
-// For some reason ctor doesn't work on Windows - it hangs the process
-// during DeviceManager::obtain. DllMain works fine though.
-#[cfg(all(windows, not(test)))]
-use std::ffi::c_void;
-#[cfg(all(windows, not(test)))]
-use winapi::um::winnt::DLL_PROCESS_ATTACH;
+pub mod loader_unix;
 
 #[cfg(all(windows, not(test)))]
-use winapi::um::libloaderapi::LoadLibraryA;
-
+pub mod loader_windows;
 #[cfg(all(windows, not(test)))]
-#[no_mangle]
-#[allow(non_snake_case, unused_variables)]
-pub extern "system" fn DllMain(dll_module: *mut c_void, call_reason: u32, _: *mut ()) -> bool {
-	match call_reason {
-		DLL_PROCESS_ATTACH => {
-			println!("[+] frida-deepfreeze-rs DLL injected");
-
-			if let Some(lib_name) = option_env!("LIB_NAME") {
-				unsafe { LoadLibraryA(lib_name.as_ptr() as *const i8); }
-				println!("[+] Original DLL {} loaded", lib_name);
-			}
-
-			attach_self();
-		}
-		// Maybe we should detach? Is it useful?
-		_ => ()
-	}
-
-	true
-}
+pub use loader_windows::DllMain;
 
 #[cfg(test)]
 mod tests {
 	use pretty_assertions::assert_eq;
 	use std::process::Command;
-	use std::fs;
 
+	#[allow(dead_code)]
 	fn get_lib_name(name: &str) -> String {
 		#[cfg(target_os = "windows")]
 		return format!("{}.dll", name);
@@ -103,7 +64,10 @@ mod tests {
 	}
 
 	#[test]
+	#[cfg(windows)]
 	fn test_frida_dll_proxy() {
+		use std::fs;
+
 		let mylib_name = get_lib_name("mylib");
 		fs::remove_file(format!("target/test_frida_dll_proxy/debug/deps/{}", mylib_name)).unwrap_or_else(|_| ());
 

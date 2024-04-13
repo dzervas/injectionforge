@@ -1,6 +1,4 @@
 use std::env;
-use std::io::Write;
-use std::fs::File;
 use std::path::Path;
 
 fn main() {
@@ -8,89 +6,33 @@ fn main() {
 	println!("cargo:rerun-if-env-changed=DLL_PROXY");
 
 	let Ok(lib_path) = env::var("DLL_PROXY") else {
-		println!("cargo:warning=No DLL_PROXY set, the resulting library has to be manually injected or compiled into the target binary");
+		println!("cargo:warning=No DLL_PROXY set, the resulting library has to be manually injected or compiled into the target binary/process");
 		return;
 	};
+
+	if build_target::target_os() != Ok(build_target::Os::Windows) {
+		panic!("Dll proxying mode is only supported on Windows.");
+	}
 
 	use goblin::Object;
 	println!("cargo:rerun-if-changed={}", &lib_path);
 
-	let path = std::path::Path::new(&lib_path);
+	let path = Path::new(&lib_path);
 	let lib_filename = path.file_name().unwrap().to_str().unwrap();
 
 	let lib_bytes = std::fs::read(path).expect(format!("Failed to open given library file {}", &lib_filename).as_str());
 	let object = Object::parse(&lib_bytes).expect(format!("Failed to parse given libary file {}", &lib_filename).as_str());
 
-	let (exports, lib_name): (Vec<&str>, String) = match object {
-		#[cfg(target_os = "windows")]
-		Object::PE(o) => {
-			(o.exports
-				.iter()
-				.map(|e| e.name.unwrap())
-				.collect(),
-			o.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", ""))
-		}
-		#[cfg(target_os = "linux")]
-		Object::Elf(o) => {
-			(o.dynsyms
-				.iter()
-				.filter(|e| e.is_function() && !e.is_import())
-				.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
-				.collect(),
-			// o.soname.expect("Couldn't read the name of the SO.").replace(".so", ""))
-			lib_filename.replace(".so", ""))
-		},
-		#[cfg(target_os = "darwin")]
-		Object::Mach(goblin::mach::Mach::Binary(o)) => {
-			(o.dynsyms
-				.iter()
-				.filter(|e| e.is_function() && !e.is_import())
-				.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
-				.collect(),
-			o.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", ""))
-		},
-		_ => {
-			println!("Only PE (.dll) and ELF (.so) files are supported in their respective target platforms.");
-			std::process::exit(1);
-		},
+	let Object::PE(pe) = object else {
+		panic!("Only PE (.dll) files are supported in this mode.");
 	};
 
-	#[cfg(target_os = "windows")]
+	let exports: Vec<&str> = pe.exports.iter().map(|e| e.name.unwrap()).collect();
+	let lib_name = pe.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", "");
+
 	for e in exports.iter() {
 		println!("cargo:warning=Exported function: {} => {}-orig.{}", e, lib_name, e);
 		println!("cargo:rustc-link-arg=/export:{}={}-orig.{}", e, lib_name, e);
-	}
-
-	#[cfg(unix)]
-	{
-		let symbols_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join("symbols.rs");
-		let mut symbols = File::create(&symbols_path).unwrap();
-		println!("cargo:rerun-if-changed={:?}", symbols_path);
-		println!("cargo:rustc-cfg=symbols");
-
-		let lib_name = if lib_name.starts_with("lib") {
-			lib_name.replacen("lib", "", 1)
-		} else {
-			lib_name.clone()
-		};
-
-		writeln!(symbols, "#![allow(dead_code)]").unwrap();
-
-		for e in exports.iter() {
-			writeln!(symbols, "#[no_mangle]").unwrap();
-			writeln!(symbols, r#"pub unsafe extern "C" fn {e}() {{ original::{e}() }}"#).unwrap();
-		}
-
-		writeln!(symbols, "pub mod original {{").unwrap();
-		writeln!(symbols, "\t#[link(name = \"{}\")]", lib_name).unwrap();
-		writeln!(symbols, "\textern {{").unwrap();
-		for e in exports.iter() {
-			println!("cargo:warning=Exported function: {}", e);
-			// writeln!(symbols, "\t#[no_mangle]").unwrap();
-			writeln!(symbols, "\t\tpub fn {e}();").unwrap();
-		}
-		writeln!(symbols, "\t}}").unwrap();
-		writeln!(symbols, "}}").unwrap();
 	}
 
 	println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
