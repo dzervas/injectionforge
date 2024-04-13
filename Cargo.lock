@@ -227,6 +227,7 @@ dependencies = [
  "frida",
  "goblin",
  "lazy_static",
+ "mylib",
  "pretty_assertions",
  "serde",
  "serde_json",
@@ -567,6 +568,10 @@ dependencies = [
  "wasi",
  "windows-sys 0.48.0",
 ]
+
+[[package]]
+name = "mylib"
+version = "0.1.0"
 
 [[package]]
 name = "nom"

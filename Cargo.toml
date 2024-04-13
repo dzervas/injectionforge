@@ -33,3 +33,4 @@ build-target = "0.4"
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
+mylib = { path = "tests/mylib" }
