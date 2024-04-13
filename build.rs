@@ -37,17 +37,18 @@ fn main() {
 				.filter(|e| e.is_function() && !e.is_import())
 				.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
 				.collect(),
-			o.soname.expect("Couldn't read the name of the SO.").replace(".so", ""))
+			// o.soname.expect("Couldn't read the name of the SO.").replace(".so", ""))
+			lib_filename.replace(".so", ""))
 		},
-		// #[cfg(target_os = "darwin")]
-		// Object::Mach(goblin::mach::Mach::Binary(o)) => {
-		// 	(o.dynsyms
-		// 		.iter()
-		// 		.filter(|e| e.is_function() && !e.is_import())
-		// 		.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
-		// 		.collect(),
-		// 	o.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", ""))
-		// },
+		#[cfg(target_os = "darwin")]
+		Object::Mach(goblin::mach::Mach::Binary(o)) => {
+			(o.dynsyms
+				.iter()
+				.filter(|e| e.is_function() && !e.is_import())
+				.map(|e| o.dynstrtab.get_at(e.st_name).unwrap())
+				.collect(),
+			o.name.expect("Couldn't read the name of the DLL. Is it a .NET DLL? It's not supported").replace(".dll", ""))
+		},
 		_ => {
 			println!("Only PE (.dll) and ELF (.so) files are supported in their respective target platforms.");
 			std::process::exit(1);
@@ -60,20 +61,35 @@ fn main() {
 		println!("cargo:rustc-link-arg=/export:{}={}-orig.{}", e, lib_name, e);
 	}
 
-	#[cfg(not(target_os = "windows"))]
+	#[cfg(unix)]
 	{
 		let symbols_path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join("symbols.rs");
 		let mut symbols = File::create(&symbols_path).unwrap();
 		println!("cargo:rerun-if-changed={:?}", symbols_path);
+		println!("cargo:rustc-cfg=symbols");
 
-		writeln!(symbols, "#[allow(dead_code)]").unwrap();
-		writeln!(symbols, "#[link(name = \"{}\")]", lib_name.replace("lib", "")).unwrap();
-		writeln!(symbols, "extern {{").unwrap();
+		let lib_name = if lib_name.starts_with("lib") {
+			lib_name.replacen("lib", "", 1)
+		} else {
+			lib_name.clone()
+		};
+
+		writeln!(symbols, "#![allow(dead_code)]").unwrap();
+
+		for e in exports.iter() {
+			writeln!(symbols, "#[no_mangle]").unwrap();
+			writeln!(symbols, r#"pub unsafe extern "C" fn {e}() {{ original::{e}() }}"#).unwrap();
+		}
+
+		writeln!(symbols, "pub mod original {{").unwrap();
+		writeln!(symbols, "\t#[link(name = \"{}\")]", lib_name).unwrap();
+		writeln!(symbols, "\textern {{").unwrap();
 		for e in exports.iter() {
 			println!("cargo:warning=Exported function: {}", e);
-			writeln!(symbols, "\t#[no_mangle]").unwrap();
-			writeln!(symbols, "\tpub fn {}();", e).unwrap();
+			// writeln!(symbols, "\t#[no_mangle]").unwrap();
+			writeln!(symbols, "\t\tpub fn {e}();").unwrap();
 		}
+		writeln!(symbols, "\t}}").unwrap();
 		writeln!(symbols, "}}").unwrap();
 	}
 
