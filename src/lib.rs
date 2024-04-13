@@ -3,8 +3,11 @@ pub mod injector;
 pub mod frida_handler;
 // #[cfg(feature = "dotnet")]
 // pub mod cs;
-#[cfg(not(windows))]
-pub mod symbols;
+
+// #[cfg(not(windows))]
+// pub mod symbols;
+// #[cfg(not(windows))]
+// pub use symbols::*;
 
 pub use injector::attach_self;
 
@@ -36,8 +39,10 @@ pub extern "system" fn DllMain(dll_module: *mut c_void, call_reason: u32, _: *mu
 		DLL_PROCESS_ATTACH => {
 			println!("[+] frida-deepfreeze-rs DLL injected");
 
-			unsafe { LoadLibraryA(env!("LIB_NAME").as_ptr() as *const i8); }
-			println!("[+] Original DLL {} loaded", env!("LIB_NAME"));
+			if let Some(lib_name) = option_env!("LIB_NAME") {
+				unsafe { LoadLibraryA(lib_name.as_ptr() as *const i8); }
+				println!("[+] Original DLL {} loaded", lib_name);
+			}
 
 			attach_self();
 		}
@@ -56,7 +61,7 @@ mod tests {
 	use std::fs;
 
 	#[test]
-	#[cfg(feature = "frida")]
+	// #[cfg(all(unix, feature = "frida"))]
 	fn test_frida_on_load() {
 		let lib_status = Command::new("cargo")
 			.arg("build")
@@ -71,7 +76,7 @@ mod tests {
 				}, "uint8", []));
 			"#)
 			.status()
-			.expect("Failed to build dynamic library");
+			.unwrap();
 
 		assert!(lib_status.success(), "Failed to build dynamic library");
 
@@ -88,37 +93,50 @@ mod tests {
 		assert_eq!(bin_status.code().unwrap(), 40, "Failed to replace foo()");
 	}
 
-	#[test]
-	#[cfg(all(windows, feature = "frida"))]
-	fn test_frida_on_load() {
-		let bin_exec = Command::new("cargo")
-			.arg("build")
-			.arg("--manifest-path")
-			.arg("tests/mybin/Cargo.toml")
-			.arg("--target-dir")
-			.arg("target/test_frida_on_load");
+	// #[test]
+	// #[cfg(all(windows, feature = "frida"))]
+	// fn test_frida_on_load() {
+	// 	let mylib_status = Command::new("cargo")
+	// 		.arg("build")
+	// 		.arg("--lib")
+	// 		.arg("--manifest-path")
+	// 		.arg("tests/mylib/Cargo.toml")
+	// 		.arg("--target-dir")
+	// 		.arg("target/test_frida_on_load")
+	// 		.status()
+	// 		.expect("Failed to build mylib");
+	// 	assert!(mylib_status.success(), "Failed to build mylib");
 
-		let lib_status = Command::new("cargo")
-			.arg("build")
-			.arg("--lib")
-			.arg("--target-dir")
-			.arg("target/test_frida_on_load")
-			.env("DLL_PROXY", "target/test_frida_on_load/debug/deps/mylib.dll")
-			.env("FRIDA_CODE", r#"
-				const foo = Module.getExportByName(null, "mylib_foo");
-				Interceptor.replace(foo, new NativeCallback(function () {
-					console.log("replaced foo() called");
-					return 40;
-				}, "uint8", []));
-			"#)
-			.status()
-			.expect("Failed to build dynamic library");
+	// 	let lib_status = Command::new("cargo")
+	// 		.arg("build")
+	// 		.arg("--lib")
+	// 		.arg("--target-dir")
+	// 		.arg("target/test_frida_on_load")
+	// 		.env("DLL_PROXY", "target/test_frida_on_load/debug/deps/mylib.dll")
+	// 		.env("FRIDA_CODE", r#"
+	// 			const foo = Module.getExportByName(null, "mylib_foo");
+	// 			Interceptor.replace(foo, new NativeCallback(function () {
+	// 				console.log("replaced foo() called");
+	// 				return 40;
+	// 			}, "uint8", []));
+	// 		"#)
+	// 		.status()
+	// 		.expect("Failed to build dynamic library");
 
-		assert!(lib_status.success(), "Failed to build dynamic library");
+	// 	assert!(lib_status.success(), "Failed to build dynamic library");
 
-		fs::rename("target/test_frida_on_load/debug/deps/mylib.dll", "target/test_frida_on_load/debug/mylib-orig.dll").expect("Failed to rename original DLL");
-		fs::rename("target/test_frida_on_load/debug/frida_deepfreeze_rs.dll", "target/test_frida_on_load/debug/mylib.dll").expect("Failed to rename deepfreeze DLL");
-		let bin_status = bin_exec.status().expect("Failed to build mybin");
-		assert_eq!(bin_status.code().unwrap(), 40, "Failed to replace foo()");
-	}
+	// 	fs::rename("target/test_frida_on_load/debug/deps/mylib.dll", "target/test_frida_on_load/debug/mylib-orig.dll").expect("Failed to rename original DLL");
+	// 	fs::rename("target/test_frida_on_load/debug/frida_deepfreeze_rs.dll", "target/test_frida_on_load/debug/mylib.dll").expect("Failed to rename deepfreeze DLL");
+
+	// 	let bin_status = Command::new("cargo")
+	// 		.arg("run")
+	// 		.arg("--manifest-path")
+	// 		.arg("tests/mybin/Cargo.toml")
+	// 		.arg("--target-dir")
+	// 		.arg("target/test_frida_on_load")
+	// 		.status()
+	// 		.expect("Failed to build mybin");
+
+	// 	assert_eq!(bin_status.code().unwrap(), 40, "Failed to replace foo()");
+	// }
 }

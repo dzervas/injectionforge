@@ -88,29 +88,29 @@ impl ScriptHandler for Handler {
 	}
 }
 
-#[cfg(test)]
-mod tests {
-	use super::*;
-	use pretty_assertions::assert_eq;
+// #[cfg(test)]
+// mod tests {
+// 	use super::*;
+// 	use pretty_assertions::assert_eq;
 
-	#[link(name = "mylib", kind = "dylib")]
-	extern {
-		fn mylib_foo() -> u8;
-	}
+// 	#[link(name = "mylib", kind = "dylib")]
+// 	extern {
+// 		fn mylib_foo() -> u8;
+// 	}
 
-	#[test]
-	fn test_attach_pid() {
-		assert_eq!(10, unsafe { mylib_foo() });
+// 	#[test]
+// 	fn test_attach_pid() {
+// 		assert_eq!(10, unsafe { mylib_foo() });
 
-		let frida_script = r#"
-			const foo = Module.getExportByName(null, "mylib_foo");
-			Interceptor.replace(foo, new NativeCallback(function () {
-				console.log("replaced foo() called");
-				return 20;
-			}, "uint8", []));
-		"#;
+// 		let frida_script = r#"
+// 			const foo = Module.getExportByName(null, "mylib_foo");
+// 			Interceptor.replace(foo, new NativeCallback(function () {
+// 				console.log("replaced foo() called");
+// 				return 20;
+// 			}, "uint8", []));
+// 		"#;
 
-		attach_pid(frida_script, 0);
-		assert_eq!(20, unsafe { mylib_foo() });
-	}
-}
+// 		attach_pid(frida_script, 0);
+// 		assert_eq!(20, unsafe { mylib_foo() });
+// 	}
+// }

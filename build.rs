@@ -2,14 +2,13 @@ use std::env;
 use std::io::Write;
 use std::fs::File;
 use std::path::Path;
-#[cfg(feature = "dotnet")]
-use csbindgen;
 
 fn main() {
 	println!("cargo:rerun-if-env-changed=FRIDA_CODE");
 	println!("cargo:rerun-if-env-changed=DLL_PROXY");
 
 	let Ok(lib_path) = env::var("DLL_PROXY") else {
+		println!("cargo:warning=No DLL_PROXY set, the resulting library has to be manually injected or compiled into the target binary");
 		return;
 	};
 
@@ -72,7 +71,7 @@ fn main() {
 		writeln!(symbols, "extern {{").unwrap();
 		for e in exports.iter() {
 			println!("cargo:warning=Exported function: {}", e);
-			// writeln!(symbols, "\t#[no_mangle]").unwrap();
+			writeln!(symbols, "\t#[no_mangle]").unwrap();
 			writeln!(symbols, "\tpub fn {}();", e).unwrap();
 		}
 		writeln!(symbols, "}}").unwrap();
@@ -80,15 +79,4 @@ fn main() {
 
 	println!("cargo:warning=Expected library name: {}-orig.dll", lib_name);
 	println!("cargo:rustc-env=LIB_NAME={}-orig.dll", lib_name);
-
-	#[cfg(feature = "dotnet")]
-	{
-		let lib_path = concat!(env!("CARGO_MANIFEST_DIR"), "/src/lib.rs");
-		let csharp_file = concat!(env!("CARGO_MANIFEST_DIR"), "/dotnet/NativeMethods.g.cs");
-		csbindgen::Builder::default()
-			.input_extern_file(lib_path)
-			.csharp_dll_name("deepfreeze")
-			.generate_csharp_file(csharp_file)
-			.unwrap();
-	}
 }

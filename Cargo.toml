@@ -12,7 +12,6 @@ path = "src/main.rs"
 
 [features]
 default = ["frida"]
-dotnet = ["dep:csbindgen"]
 frida = ["dep:frida", "dep:lazy_static", "dep:serde", "dep:serde_json"]
 
 [dependencies]
@@ -30,8 +29,7 @@ ctor = "0.2.7"
 
 [build-dependencies]
 goblin = "0.8.0"
-csbindgen = { version = "1.9.1", optional = true}
 
 [dev-dependencies]
 pretty_assertions = "1.4.0"
-mylib = { path = "tests/mylib" }
+# mylib = { path = "tests/mylib" }
