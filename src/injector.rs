@@ -9,11 +9,11 @@ use crate::frida_handler::attach_pid as frida_attach_pid;
 pub extern "C" fn attach(pid: u32) {
 	#[cfg(feature = "frida")]
 	{
-		let frida_code = env!("FRIDA_CODE");
+		let frida_code = env!("FRIDA_CODE").replace("\\n", "\n");
 		#[cfg(windows)]
-		std::thread::spawn(move || frida_attach_pid(frida_code, pid));
+		std::thread::spawn(move || frida_attach_pid(&frida_code, pid));
 		#[cfg(not(windows))]
-		frida_attach_pid(frida_code, pid);
+		frida_attach_pid(&frida_code, pid);
 	}
 }
 

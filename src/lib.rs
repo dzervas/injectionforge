@@ -39,11 +39,11 @@ mod tests {
 			.arg("--target-dir")
 			.arg("target/test_frida_on_load")
 			.env("FRIDA_CODE", r#"
-				const foo = Module.getExportByName(null, "mylib_foo");
-				Interceptor.replace(foo, new NativeCallback(function () {
-					console.log("replaced foo() called");
-					return 40;
-				}, "uint8", []));
+const foo = Module.getExportByName(null, "mylib_foo");
+Interceptor.replace(foo, new NativeCallback(function () {
+	console.log("replaced foo() called");
+	return 40;
+}, "uint8", []));
 			"#)
 			.status()
 			.unwrap();
