@@ -3,7 +3,21 @@ use std::path::Path;
 
 fn main() {
 	println!("cargo:rerun-if-env-changed=FRIDA_CODE");
+	println!("cargo:rerun-if-env-changed=FRIDA_CODE_FILE");
 	println!("cargo:rerun-if-env-changed=DLL_PROXY");
+
+	if env::var("FRIDA_CODE").is_err() && env::var("FRIDA_CODE_FILE").is_err() {
+		panic!("No FRIDA_CODE or FRIDA_CODE_FILE set. Please set one of them.");
+	}
+
+	if env::var("FRIDA_CODE").is_ok() && env::var("FRIDA_CODE_FILE").is_ok() {
+		panic!("Both FRIDA_CODE and FRIDA_CODE_FILE set. Please set one of them.");
+	}
+
+	if let Ok(frida_code_file) = env::var("FRIDA_CODE_FILE") {
+		let frida_code = std::fs::read_to_string(frida_code_file).expect("Failed to read FRIDA_CODE_FILE");
+		println!("cargo:rustc-env=FRIDA_CODE={}", frida_code);
+	}
 
 	let Ok(lib_path) = env::var("DLL_PROXY") else {
 		println!("cargo:warning=No DLL_PROXY set, the resulting library has to be manually injected or compiled into the target binary/process");
