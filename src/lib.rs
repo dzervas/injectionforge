@@ -56,6 +56,8 @@ Interceptor.replace(foo, new NativeCallback(function () {
 			.arg("tests/mybin/Cargo.toml")
 			.arg("--target-dir")
 			.arg("target/test_frida_on_load")
+			// We're compiling in the same target dir so that frida_deepfreeze_rs is found
+			// We'd have to copy it to the target dir otherwise
 			.env("RUSTFLAGS", "-C link-arg=-Wl,--no-as-needed -C link-arg=-lfrida_deepfreeze_rs")
 			.status()
 			.unwrap();
@@ -77,18 +79,18 @@ Interceptor.replace(foo, new NativeCallback(function () {
 			.arg("--manifest-path")
 			.arg("tests/mylib/Cargo.toml")
 			.arg("--target-dir")
-			.arg("target/test_frida_dll_proxy")
+			.arg("target/test_frida_dll_proxy/mylib")
 			.status()
 			.unwrap();
 		assert!(mylib_status.success(), "Failed to build mylib");
 
+		// fs::copy(format!("target/test_frida_dll_proxy/mylib/debug/{}", get_lib_name("mylib")), format!("target/test_frida_dll_proxy/lib/debug/deps/{}", get_lib_name("mylib-orig"))).expect("Failed to rename original DLL");
 		let lib_status = Command::new("cargo")
 			.arg("build")
 			.arg("--lib")
 			.arg("--target-dir")
-			.arg("target/test_frida_dll_proxy")
-			.env("DLL_PROXY", format!("target/test_frida_dll_proxy/debug/deps/{}", mylib_name))
-			.env("RUSTFLAGS", "-C link-arg=-Wl,--no-as-needed -C link-arg=-lmylib")
+			.arg("target/test_frida_dll_proxy/lib")
+			.env("DLL_PROXY", format!("target/test_frida_dll_proxy/mylib/debug/{mylib_name}"))
 			.env("FRIDA_CODE", r#"
 				const foo = Module.getExportByName(null, "mylib_foo");
 				Interceptor.replace(foo, new NativeCallback(function () {
@@ -101,16 +103,17 @@ Interceptor.replace(foo, new NativeCallback(function () {
 
 		assert!(lib_status.success(), "Failed to build dynamic library");
 
-		let target_dir = "target/test_frida_dll_proxy/debug/deps/";
-		fs::rename(format!("{}{}", target_dir, get_lib_name("mylib")), format!("{}{}", target_dir, get_lib_name("mylib-orig"))).expect("Failed to rename original DLL");
-		fs::rename(format!("{}{}", target_dir, get_lib_name("frida_deepfreeze_rs")), format!("{}{}", target_dir, get_lib_name("mylib"))).expect("Failed to rename deepfreeze DLL");
+		let target_dir = "target/test_frida_dll_proxy/mybin/debug/deps/";
+		fs::copy(format!("target/test_frida_dll_proxy/mylib/debug/{}", get_lib_name("mylib")), format!("{target_dir}{}", get_lib_name("mylib-orig"))).expect("Failed to rename original DLL");
+		fs::copy(format!("target/test_frida_dll_proxy/lib/debug/{}", get_lib_name("frida_deepfreeze_rs")), format!("{target_dir}{}", get_lib_name("mylib"))).expect("Failed to rename deepfreeze DLL");
 
 		let bin_status = Command::new("cargo")
 			.arg("run")
 			.arg("--manifest-path")
 			.arg("tests/mybin/Cargo.toml")
 			.arg("--target-dir")
-			.arg("target/test_frida_dll_proxy")
+			.arg("target/test_frida_dll_proxy/mybin")
+			// .env("RUSTFLAGS", "-C link-arg=-Wl,--no-as-needed -C link-arg=-lmylib")
 			.status()
 			.unwrap();
 

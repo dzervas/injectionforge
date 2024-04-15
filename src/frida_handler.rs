@@ -1,6 +1,6 @@
 #![cfg(feature = "frida")]
 
-use frida::{DeviceManager, DeviceType, Frida, ScriptHandler, ScriptOption, ScriptRuntime};
+use frida::{DeviceManager, DeviceType, Frida, ScriptHandler, ScriptOption, ScriptRuntime, SpawnOptions};
 use lazy_static::lazy_static;
 use serde::Deserialize;
 
@@ -8,31 +8,52 @@ lazy_static! {
 	pub static ref FRIDA: Frida = unsafe { Frida::obtain() };
 }
 
-pub fn attach_pid(frida_code: &str, pid: u32) {
-	println!("[+] Injecting into PID: {}", pid);
+#[derive(Debug)]
+pub enum AttachMode {
+	Pid(u32),
+	Name(String),
+	Spawn(String),
+}
+
+pub fn attach_with(frida_code: &str, mode: AttachMode) {
+	println!("[+] Injecting into: {mode:?}");
 
 	let device_manager = DeviceManager::obtain(&FRIDA);
 	println!("[*] Device Manager obtained");
 
-	if let Ok(device) = device_manager.get_device_by_type(DeviceType::Local) {
+	if let Ok(mut device) = device_manager.get_device_by_type(DeviceType::Local) {
 		println!("[*] First device: {}", device.get_name());
+
+		let pid = match mode {
+			AttachMode::Pid(pid) => pid,
+			AttachMode::Name(ref name) => {
+				device.enumerate_processes().iter()
+					.find(|p| p.get_name() == name)
+					.expect("Process not found")
+					.get_pid()
+			},
+			AttachMode::Spawn(ref name) => device.spawn(name, &SpawnOptions::new()).unwrap(),
+		};
 
 		let session = device.attach(pid).unwrap();
 
-		if !session.is_detached() {
-			println!("[*] Attached");
+		println!("[*] Attached");
 
-			let mut script_option = ScriptOption::new()
-				.set_runtime(ScriptRuntime::QJS);
-			println!("[*] Script {}", frida_code);
-			let script = session
-				.create_script(frida_code, &mut script_option)
-				.unwrap();
+		let mut script_option = ScriptOption::new()
+			.set_runtime(ScriptRuntime::QJS);
+		println!("[*] Script {}", frida_code);
+		let script = session
+			.create_script(frida_code, &mut script_option)
+			.unwrap();
 
-			script.handle_message(&mut Handler).unwrap();
+		script.handle_message(&mut Handler).unwrap();
 
-			script.load().unwrap();
-			println!("[*] Script loaded");
+		script.load().unwrap();
+		println!("[*] Script loaded");
+
+		if let AttachMode::Spawn(_) = mode {
+			device.resume(pid).unwrap();
+			println!("[*] Resuming spawned process")
 		}
 	} else {
 		eprintln!("[!] No device found!");
@@ -111,7 +132,7 @@ mod tests {
 			}, "uint8", []));
 		"#;
 
-		attach_pid(frida_script, 0);
+		attach_with(frida_script, AttachMode::Pid(0));
 		assert_eq!(20, unsafe { mylib_foo() });
 	}
 }
