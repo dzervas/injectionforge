@@ -9,7 +9,7 @@ use winapi::um::winnt::{EVENT_TRACE_CONTROL_STOP, EVENT_TRACE_FLAG_PROCESS};
 
 pub fn start_daemon() {
 	// Create an event trace session
-	let session_name = "frida-deepfreeze-rs";
+	let session_name = "InjectionForge";
 	let session_handle = create_event_trace_session(session_name);
 	if session_handle.is_null() {
 		eprintln!("Failed to create event trace session");

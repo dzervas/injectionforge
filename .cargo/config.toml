@@ -1,2 +1,2 @@
 [env]
-FRIDA_CODE = "console.log('Hello World from frida-deepfreeze-rs!')"
+FRIDA_CODE = "console.log('Hello World from InjectionForge!')"

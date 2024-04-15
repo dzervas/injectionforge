@@ -225,24 +225,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "frida-deepfreeze-rs"
-version = "0.1.0"
-dependencies = [
- "build-target",
- "ctor",
- "frida",
- "goblin",
- "lazy_static",
- "mylib",
- "pretty_assertions",
- "serde",
- "serde_json",
- "toml",
- "winapi",
- "windows-sys 0.52.0",
-]
-
-[[package]]
 name = "frida-sys"
 version = "0.13.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -471,6 +453,24 @@ checksum = "168fb715dda47215e360912c096649d23d58bf392ac62f73919e831745e40f26"
 dependencies = [
  "equivalent",
  "hashbrown",
+]
+
+[[package]]
+name = "injectionforge"
+version = "0.1.0"
+dependencies = [
+ "build-target",
+ "ctor",
+ "frida",
+ "goblin",
+ "lazy_static",
+ "mylib",
+ "pretty_assertions",
+ "serde",
+ "serde_json",
+ "toml",
+ "winapi",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]

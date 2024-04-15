@@ -1,11 +1,11 @@
-# frida-deepfreeze-rs
+# InjectionForge
 
-<img align="right" height="300" src=".github/logo.png" alt="frida-deepfreeze-rs logo" />
+<img align="right" height="300" src=".github/logo.png" alt="InjectionForge logo" />
 
 Have you ever written a frida script this good, that you wanted to make it permanent?
 Well, now you can!
 
-frida-deepfreeze-rs is a tool that allows you to convert your frida scripts into
+InjectionForge is a tool that allows you to convert your frida scripts into
 either a standalone executable that when called with a PID injects itself and runs
 the script or a shared library that can be somehow injected to a process and runs
 the script.
@@ -31,8 +31,8 @@ The standalone executable is the easiest to use. You just run it with a PID and
 it will inject itself and run the frida script.
 
 ```bash
-git clone https://github.com/dzervas/frida-deepfreeze-rs
-FRIDA_CODE='console.log("Hello world from frida-deepfreeze-rs!")' cargo run --bin standalone -- 1234
+git clone https://github.com/dzervas/injectionforge
+FRIDA_CODE='console.log("Hello world from InjectionForge!")' cargo run --bin standalone -- 1234
 ```
 
 The binary is located at `target/debug/standalone` (`.exe` for windows).
@@ -43,8 +43,8 @@ The shared library is a bit more complicated to use. You have to inject it to
 a process using a tool like `LD_PRELOAD` (linux) or `rundll32.exe` (windows).
 
 ```bash
-git clone https://github.com/dzervas/frida-deepfreeze-rs
-FRIDA_CODE='console.log("Hello world from frida-deepfreeze-rs!")' cargo build --lib
+git clone https://github.com/dzervas/injectionforge
+FRIDA_CODE='console.log("Hello world from InjectionForge!")' cargo build --lib
 LD_PRELOAD=target/debug/libfrida_deepfreeze_rs.so cat
 # rundll32.exe target/debug/frida_deepfreeze_rs.dll,inject_self 1234 (windows equivalent)
 ```
@@ -77,6 +77,6 @@ run any extra commands.
 **NOTE**: This only works on Windows (for now?).
 
 ```bash
-git clone https://github.com/dzervas/frida-deepfreeze-rs
-DLL_PROXY='../myawesome.dll' FRIDA_CODE='console.log("Hello world from frida-deepfreeze-rs!")' cargo xwin build --lib --target x86_64-pc-windows-msvc
+git clone https://github.com/dzervas/injectionforge
+DLL_PROXY='../myawesome.dll' FRIDA_CODE='console.log("Hello world from InjectionForge!")' cargo xwin build --lib --target x86_64-pc-windows-msvc
 ```
