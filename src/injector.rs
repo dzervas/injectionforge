@@ -12,7 +12,7 @@ pub extern "C" fn attach(pid: u32) {
 	{
 		let frida_code = env!("FRIDA_CODE").replace("\\n", "\n");
 		#[cfg(windows)]
-		std::thread::spawn(move || frida_attach_pid(&frida_code, AttachMode::Pid(pid)));
+		std::thread::spawn(move || frida_attach_with(&frida_code, AttachMode::Pid(pid)));
 		#[cfg(not(windows))]
 		frida_attach_with(&frida_code, AttachMode::Pid(pid));
 	}

@@ -1,3 +1,4 @@
+#![cfg(all(unix, not(test)))]
 use ctor::ctor;
 
 use crate::injector::attach_self;

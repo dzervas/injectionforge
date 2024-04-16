@@ -6,10 +6,8 @@ pub use injector::attach_self;
 
 // During testing we compile a debug binary without `test`.
 // Enabling `ctor` during testing would hook the test runner and break it.
-#[cfg(all(unix, not(test)))]
 pub mod loader_unix;
 
-#[cfg(all(windows, not(test)))]
 pub mod loader_windows;
 #[cfg(all(windows, not(test)))]
 pub use loader_windows::DllMain;

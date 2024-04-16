@@ -1,6 +1,9 @@
+#![cfg(all(windows, not(test)))]
+
 use std::ffi::c_void;
 use winapi::um::winnt::DLL_PROCESS_ATTACH;
 use winapi::um::libloaderapi::LoadLibraryA;
+use crate::attach_self;
 
 // For some reason ctor doesn't work on Windows - it hangs the process
 // during DeviceManager::obtain. DllMain works fine though.
