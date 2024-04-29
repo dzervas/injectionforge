@@ -28,7 +28,7 @@ windows-sys = { version = "0.52.0", features = ["Win32_System_ClrHosting"], opti
 ctor = "0.2.8"
 
 [build-dependencies]
-goblin = "0.8.0"
+goblin = "0.8.1"
 build-target = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 toml = "0.8.12"
