@@ -205,9 +205,9 @@ dependencies = [
 
 [[package]]
 name = "frida"
-version = "0.13.6"
+version = "0.13.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fd47778d80e309a5ccba0aee86129c942f1daa91c6d2aae7c678e62fef00feb3"
+checksum = "d120fc44d01dd49c9c47eccec046c29c6d26834cda6602d401c3b8a7600bb371"
 dependencies = [
  "frida-sys",
  "thiserror",
@@ -215,9 +215,9 @@ dependencies = [
 
 [[package]]
 name = "frida-build"
-version = "0.13.6"
+version = "0.13.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c30ea8305152e97a11228532ece476b8174ff8454e63919fc7c7c60263ad5342"
+checksum = "64e0adc856243a8980b9972cc9d589bde146e17d53e383519baf7eabbaf28d94"
 dependencies = [
  "reqwest",
  "tar",
@@ -226,9 +226,9 @@ dependencies = [
 
 [[package]]
 name = "frida-sys"
-version = "0.13.6"
+version = "0.13.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3eec812fe38961ed007d713557989ee4c7058d9363c7e66a3ae5485ee30fc303"
+checksum = "e84379e3ef48d69137c87059d77d9feb60e876a11816d0e2112e8033e18c1c60"
 dependencies = [
  "bindgen",
  "frida-build",
