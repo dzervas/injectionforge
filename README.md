@@ -80,3 +80,34 @@ run any extra commands.
 git clone https://github.com/dzervas/injectionforge
 DLL_PROXY='../myawesome.dll' FRIDA_CODE='console.log("Hello world from InjectionForge!")' cargo xwin build --lib --target x86_64-pc-windows-msvc
 ```
+
+## Android and anti-anti-frida
+
+Since most people ask about Android and anti-anti-frida techniques,
+I created some dockerfiles to help with that.
+
+To just wrap a frida script in a shared library that can be injected to an Android
+process (or APK repacking):
+
+```bash
+git clone https://github.com/dzervas/injectionforge
+cd injectionforge
+docker build -t injectionforge-android -f Dockerfile.android
+docker run -e FRIDA_CODE_FILE=/script.js -v $(pwd)/target:/injectionforge/target -v $(pwd)/myscript.js:/script.js injectionforge-android
+```
+
+(be sure to change the path to `myscript.js`)
+
+To use a patched frida to evade some basic anti-frida techniques
+(based on [undetected-frida-patches](https://github.com/ultrafunkamsterdam/undetected-frida-patches/)):
+
+```bash
+git clone https://github.com/dzervas/injectionforge
+cd injectionforge
+docker build -t injectionforge-android -f Dockerfile.android
+docker build -t injectionforge-android-undetect -f Dockerfile.android-undetect
+docker run -e FRIDA_CODE_FILE=/script.js -v $(pwd)/target:/injectionforge/target -v $(pwd)/myscript.js:/script.js injectionforge-android-undetect
+```
+
+During the build of `Dockerfile.android` you can pass args to specify the
+NDK version and more (check the Dockerfile).
