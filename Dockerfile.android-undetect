@@ -1,0 +1,21 @@
+# Before building this image:
+# docker build -t injectionforge-android -f Dockerfile.android
+FROM injectionforge-android
+
+# Frida dependencies to optionally compile frida
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential git lib32stdc++-9-dev libc6-dev-i386 nodejs npm
+
+# Compile frida-core devkit
+ARG FRIDA_HOST=android-arm
+# Updated https://github.com/ultrafunkamsterdam/undetected-frida-patches
+COPY .github/undetected-frida-patches.patch /undetected-frida-patches.patch
+RUN git clone https://github.com/frida/frida-core /frida-core && \
+	cd /frida-core && \
+	git apply /undetected-frida-patches.patch && \
+	./configure --host=${FRIDA_HOST} --with-devkits=core --disable-connectivity --disable-portal --disable-server --disable-tests --disable-gadget --disable-inject && \
+	make -j8
+
+ENV FRIDA_CORE_DEVKIT_PATH="/frida-core/build/src/devkit"
+
+# Run with: docker run -it --name iforge -v $(pwd):/injectionforge injectionforge:latest
+CMD ["cargo", "ndk", "-t", ${NDK_ARCH}, "--bindgen", "build", "--no-default-features", "--features", "frida"]

@@ -1,19 +1,25 @@
 FROM ubuntu
 
-ARG NDK_VERSION=27.0.12077973
+# Rust & sdkmanager
 ARG TOOLS_VERSION=13.0
-ARG ARCH_TRIPLET=armv7-linux-androideabi
-ARG NDK_ARCH=armeabi-v7a
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y clang gcc git rustup google-android-cmdline-tools-${TOOLS_VERSION}-installer
 
-RUN apt-get update && apt-get install -y clang gcc git rustup google-android-cmdline-tools-${TOOLS_VERSION}-installer
+# Set up cargo-ndk
+ARG ARCH_TRIPLET=armv7-linux-androideabi
 RUN rustup default stable && cargo install cargo-ndk && rustup target add ${ARCH_TRIPLET}
+
+# Install the NDK
+ARG NDK_VERSION=25.2.9519653
 RUN yes | sdkmanager --licenses && sdkmanager --install "ndk;${NDK_VERSION}"
 
+# Required environment variables
 ENV ANDROID_HOME="/usr/lib/android-sdk"
 ENV ANDROID_NDK_HOME="/usr/lib/android-sdk/ndk/${NDK_VERSION}/"
-ENV FRIDA_CODE="console.log(\"Hello world from Android InjectionForge!\")"
+ENV ANDROID_NDK_ROOT="${ANDROID_NDK_HOME}"
 
-COPY . /injectionforge
+ARG NDK_ARCH=armeabi-v7a
 
+WORKDIR /injectionforge
+
+# Run with: docker run -it --name iforge -v $(pwd):/injectionforge injectionforge:latest
 CMD ["cargo", "ndk", "-t", ${NDK_ARCH}, "--bindgen", "build"]
-
