@@ -92,7 +92,7 @@ process (or APK repacking):
 ```bash
 git clone https://github.com/dzervas/injectionforge
 cd injectionforge
-docker build -t injectionforge-android -f Dockerfile.android
+docker build -t injectionforge-android -f Dockerfile.android .
 docker run -e FRIDA_CODE_FILE=/script.js -v $(pwd)/target:/injectionforge/target -v $(pwd)/myscript.js:/script.js injectionforge-android
 ```
 
@@ -104,8 +104,8 @@ To use a patched frida to evade some basic anti-frida techniques
 ```bash
 git clone https://github.com/dzervas/injectionforge
 cd injectionforge
-docker build -t injectionforge-android -f Dockerfile.android
-docker build -t injectionforge-android-undetect -f Dockerfile.android-undetect
+docker build -t injectionforge-android -f Dockerfile.android .
+docker build -t injectionforge-android-undetect -f Dockerfile.android-undetect .
 docker run -e FRIDA_CODE_FILE=/script.js -v $(pwd)/target:/injectionforge/target -v $(pwd)/myscript.js:/script.js injectionforge-android-undetect
 ```
 

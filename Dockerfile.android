@@ -23,4 +23,4 @@ COPY . /injectionforge
 WORKDIR /injectionforge
 
 # Run with: docker run -it --name iforge -v $(pwd):/injectionforge injectionforge:latest
-CMD ["cargo", "ndk", "-t", ${NDK_ARCH}, "--bindgen", "build"]
+CMD cargo ndk -t armeabi-v7a --bindgen build --release

@@ -1,8 +1,8 @@
-/tests
 target
 .git
 .vscode
 .github
+!/.github/undetected-frida-patches.patch
 *.nix
 /renovate.json
 __handlers__
