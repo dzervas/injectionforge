@@ -3,7 +3,9 @@
 FROM injectionforge-android
 
 # Frida dependencies to optionally compile frida
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential git lib32stdc++-9-dev libc6-dev-i386 nodejs npm
+RUN apt-get update && \
+	DEBIAN_FRONTEND=noninteractive apt-get install -y build-essential git lib32stdc++-9-dev libc6-dev-i386 nodejs npm python3-pip && \
+	pip install --break-system-packages lief
 
 # Compile frida-core devkit
 ARG FRIDA_HOST=android-arm

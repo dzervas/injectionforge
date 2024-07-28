@@ -19,6 +19,7 @@ ENV ANDROID_NDK_ROOT="${ANDROID_NDK_HOME}"
 
 ARG NDK_ARCH=armeabi-v7a
 
+COPY . /injectionforge
 WORKDIR /injectionforge
 
 # Run with: docker run -it --name iforge -v $(pwd):/injectionforge injectionforge:latest

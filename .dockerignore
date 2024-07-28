@@ -1,0 +1,8 @@
+/tests
+target
+.git
+.vscode
+.github
+*.nix
+/renovate.json
+__handlers__
