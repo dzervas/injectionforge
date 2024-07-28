@@ -20,4 +20,4 @@ RUN git clone https://github.com/frida/frida-core /frida-core && \
 ENV FRIDA_CORE_DEVKIT_PATH="/frida-core/build/src/devkit"
 
 # Run with: docker run -it --name iforge -v $(pwd):/injectionforge injectionforge:latest
-CMD ["cargo", "ndk", "-t", ${NDK_ARCH}, "--bindgen", "build", "--no-default-features", "--features", "frida"]
+CMD "cargo ndk -t armeabi-v7a --bindgen build --no-default-features --features frida && python3 /frida-core/src/anti-anti-frida.py target/armv7-linux-androideabi/debug/standalone && python3 /frida-core/src/anti-anti-frida.py target/armv7-linux-androideabi/debug/libinjectionforge.so"
