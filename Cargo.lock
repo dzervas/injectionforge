@@ -206,7 +206,8 @@ dependencies = [
 [[package]]
 name = "frida"
 version = "0.13.7"
-source = "git+https://github.com/dzervas/frida-rust?branch=armhf-patches#278de57a52d3bd0b1cf3499160f519b9e254bf24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d120fc44d01dd49c9c47eccec046c29c6d26834cda6602d401c3b8a7600bb371"
 dependencies = [
  "frida-sys",
  "thiserror",
@@ -215,7 +216,8 @@ dependencies = [
 [[package]]
 name = "frida-build"
 version = "0.13.7"
-source = "git+https://github.com/dzervas/frida-rust?branch=armhf-patches#278de57a52d3bd0b1cf3499160f519b9e254bf24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64e0adc856243a8980b9972cc9d589bde146e17d53e383519baf7eabbaf28d94"
 dependencies = [
  "reqwest",
  "tar",
@@ -225,7 +227,8 @@ dependencies = [
 [[package]]
 name = "frida-sys"
 version = "0.13.7"
-source = "git+https://github.com/dzervas/frida-rust?branch=armhf-patches#278de57a52d3bd0b1cf3499160f519b9e254bf24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e84379e3ef48d69137c87059d77d9feb60e876a11816d0e2112e8033e18c1c60"
 dependencies = [
  "bindgen",
  "frida-build",
@@ -1011,9 +1014,9 @@ dependencies = [
 
 [[package]]
 name = "serde_spanned"
-version = "0.6.5"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb3622f419d1296904700073ea6cc23ad690adbd66f13ea683df73298736f0c1"
+checksum = "eb5b1b31579f3811bf615c144393417496f152e12ac8b7663bf664f4a815306d"
 dependencies = [
  "serde",
 ]
@@ -1164,9 +1167,9 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.8.12"
+version = "0.8.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9dd1545e8208b4a5af1aa9bbd0b4cf7e9ea08fabc5d0a5c67fcaafa17433aa3"
+checksum = "a1ed1f98e3fdc28d6d910e6737ae6ab1a93bf1985935a1193e68f93eeb68d24e"
 dependencies = [
  "serde",
  "serde_spanned",
@@ -1176,18 +1179,18 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.6.5"
+version = "0.6.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3550f4e9685620ac18a50ed434eb3aec30db8ba93b0287467bca5826ea25baf1"
+checksum = "0dd7358ecb8fc2f8d014bf86f6f638ce72ba252a2c3a2572f2a795f1d23efb41"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "toml_edit"
-version = "0.22.9"
+version = "0.22.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8e40bb779c5187258fd7aad0eb68cb8706a0a81fa712fbea808ab43c4b8374c4"
+checksum = "583c44c02ad26b0c3f3066fe629275e50627026c51ac2e595cca4c230ce1ce1d"
 dependencies = [
  "indexmap",
  "serde",
@@ -1566,9 +1569,9 @@ checksum = "0770833d60a970638e989b3fa9fd2bb1aaadcf88963d1659fd7d9990196ed2d6"
 
 [[package]]
 name = "winnow"
-version = "0.6.6"
+version = "0.6.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c976aaaa0e1f90dbb21e9587cdaf1d9679a1cde8875c0d6bd83ab96a208352"
+checksum = "68a9bda4691f099d435ad181000724da8e5899daa10713c2d432552b9ccd3a6f"
 dependencies = [
  "memchr",
 ]
