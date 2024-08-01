@@ -206,7 +206,8 @@ dependencies = [
 [[package]]
 name = "frida"
 version = "0.13.7"
-source = "git+https://github.com/dzervas/frida-rust?branch=armhf-patches#278de57a52d3bd0b1cf3499160f519b9e254bf24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d120fc44d01dd49c9c47eccec046c29c6d26834cda6602d401c3b8a7600bb371"
 dependencies = [
  "frida-sys",
  "thiserror",
@@ -215,7 +216,8 @@ dependencies = [
 [[package]]
 name = "frida-build"
 version = "0.13.7"
-source = "git+https://github.com/dzervas/frida-rust?branch=armhf-patches#278de57a52d3bd0b1cf3499160f519b9e254bf24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64e0adc856243a8980b9972cc9d589bde146e17d53e383519baf7eabbaf28d94"
 dependencies = [
  "reqwest",
  "tar",
@@ -225,7 +227,8 @@ dependencies = [
 [[package]]
 name = "frida-sys"
 version = "0.13.7"
-source = "git+https://github.com/dzervas/frida-rust?branch=armhf-patches#278de57a52d3bd0b1cf3499160f519b9e254bf24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e84379e3ef48d69137c87059d77d9feb60e876a11816d0e2112e8033e18c1c60"
 dependencies = [
  "bindgen",
  "frida-build",
@@ -1000,11 +1003,12 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.117"
+version = "1.0.122"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "455182ea6142b14f93f4bc5320a2b31c1f266b66a4a5c858b013302a5d8cbfc3"
+checksum = "784b6203951c57ff748476b126ccb5e8e2959a5c19e5c617ab1956be3dbc68da"
 dependencies = [
  "itoa",
+ "memchr",
  "ryu",
  "serde",
 ]
