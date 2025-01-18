@@ -1,8 +1,7 @@
 #![cfg(feature = "frida")]
 
-use frida::{DeviceManager, DeviceType, Frida, ScriptHandler, ScriptOption, ScriptRuntime, SpawnOptions};
+use frida::{DeviceManager, DeviceType, Frida, ScriptHandler, ScriptOption, ScriptRuntime, SpawnOptions, Message, MessageLogLevel};
 use lazy_static::lazy_static;
-use serde::Deserialize;
 
 lazy_static! {
 	pub static ref FRIDA: Frida = unsafe { Frida::obtain() };
@@ -42,11 +41,11 @@ pub fn attach_with(frida_code: &str, mode: AttachMode) {
 		let mut script_option = ScriptOption::new()
 			.set_runtime(ScriptRuntime::QJS);
 		println!("[*] Script {}", frida_code);
-		let script = session
+		let mut script = session
 			.create_script(frida_code, &mut script_option)
 			.unwrap();
 
-		script.handle_message(&mut Handler).unwrap();
+		script.handle_message(Handler).unwrap();
 
 		script.load().unwrap();
 		println!("[*] Script loaded");
@@ -60,53 +59,23 @@ pub fn attach_with(frida_code: &str, mode: AttachMode) {
 	};
 }
 
-#[derive(Debug, Deserialize)]
-struct LogEntry {
-	#[serde(rename = "type")]
-	log_type: LogType,
-	level: LogLevel,
-	payload: String,
-}
-
-#[derive(Debug, Deserialize)]
-enum LogType {
-	#[serde(rename = "log")]
-	Log,
-}
-
-#[derive(Debug, Deserialize)]
-enum LogLevel {
-	#[serde(rename = "debug")]
-	Debug,
-	#[serde(rename = "info")]
-	Info,
-	#[serde(rename = "warning")]
-	Warning,
-	#[serde(rename = "error")]
-	Error,
-}
-
 struct Handler;
 
 impl ScriptHandler for Handler {
-	fn on_message(&mut self, message: &str) {
-		if let Ok(log_entry) = serde_json::from_str::<LogEntry>(message) {
-			match log_entry.log_type {
-				LogType::Log => {
-					match log_entry.level {
-						LogLevel::Debug => eprint!("[-] "),
-						LogLevel::Info => eprint!("[i] "),
-						LogLevel::Warning => eprint!("[!] "),
-						LogLevel::Error => eprint!("[X] "),
-					}
-				}
+	fn on_message(&mut self, message: &Message, _data: Option<Vec<u8>>) {
+		if let Message::Log(log_entry) = message {
+			match log_entry.level {
+				MessageLogLevel::Debug => eprint!("[-] "),
+				MessageLogLevel::Info => eprint!("[i] "),
+				MessageLogLevel::Warning => eprint!("[!] "),
+				MessageLogLevel::Error => eprint!("[X] "),
 			}
 
 			eprintln!("{}", log_entry.payload);
 			return;
 		}
 
-		eprintln!("{message}");
+		eprintln!("{:?}", message);
 	}
 }
 
