@@ -28,7 +28,7 @@ windows-sys = { version = "0.59", features = [
 ], optional = true }
 
 [target.'cfg(unix)'.dependencies]
-ctor = "0.2"
+ctor = "0.4"
 
 [build-dependencies]
 goblin = "0.9"
